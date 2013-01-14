@@ -135,6 +135,14 @@ vows.describe('jitsu/commands/env').addBatch({
       }, { 'x-powered-by': 'Nodejitsu' })
   })
 }).addBatch({
+  'env set': shouldNodejitsuOk(
+    'Should exit with an error',
+    function assertion (ign, err) {
+      err = ign;
+      assert.isTrue(!!err);
+    }
+  )
+}).addBatch({
   'env set test truthy': shouldNodejitsuOk(function setup() {
     nock('http://api.mockjitsu.com')
       .get('/apps/tester/jitsu')
@@ -271,7 +279,7 @@ vows.describe('jitsu/commands/env').addBatch({
 }).addBatch({
   'env clear': shouldNodejitsuOk('The current app should have an empty env',
     function setup() {
-      jitsu.prompt.override['yesno'] = 'yes';
+      jitsu.prompt.override.confirm = 'yes';
       nock('http://api.mockjitsu.com')
         .get('/apps/tester/jitsu')
           .reply(200, {
@@ -291,7 +299,7 @@ vows.describe('jitsu/commands/env').addBatch({
 }).addBatch({
   'env clear barbaz': shouldNodejitsuOk('The specified app should have an empty env',
     function setup() {
-      jitsu.prompt.override['yesno'] = 'yes';
+      jitsu.prompt.override.confirm = 'yes';
       nock('http://api.mockjitsu.com')
         .get('/apps/tester/barbaz')
           .reply(200, {
@@ -305,6 +313,185 @@ vows.describe('jitsu/commands/env').addBatch({
               }
             }, { 'x-powered-by': 'Nodejitsu' })
         .put('/apps/tester/barbaz', { env: {} })
+          .reply(200, '', { 'x-powered-by': 'Nodejitsu' });
+    }
+  )
+}).addBatch({
+  'env save': shouldNodejitsuOk('The current app should save enviroment variables',
+    function setup() {
+      jitsu.prompt.override.confirm = 'yes';
+      nock('http://api.mockjitsu.com')
+        .get('/apps/tester/jitsu')
+          .reply(200, {
+              app: {
+                name: 'application',
+                state: 'stopped',
+                env: { foo: 'bar', baz: 'buzz', test: 'truthy' },
+                subdomain:'application',
+                scripts: { start: './server.js' },
+                snapshots: [{ filename: 'FILENAME' }]
+              }
+            }, { 'x-powered-by': 'Nodejitsu' });
+    },
+    function assertion (err) {
+      assert.ok(!err && fs.existsSync('env.json'));
+    })
+}).addBatch({
+  'env save barbaz': shouldNodejitsuOk('The specified app should save enviroment variables',
+    function setup() {
+      jitsu.prompt.override.confirm = 'yes';
+      nock('http://api.mockjitsu.com')
+        .get('/apps/tester/barbaz')
+          .reply(200, {
+              app: {
+                name: 'barbaz',
+                state: 'stopped',
+                env: { foo: 'bar', baz: 'buzz', test: 'truthy' },
+                subdomain:'barbaz',
+                scripts: { start: './server.js' },
+                snapshots: [{ filename: 'FILENAME' }]
+              }
+            }, { 'x-powered-by': 'Nodejitsu' });
+    },
+    function assertion (err) {
+      assert.ok(!err && fs.existsSync('env.json'));
+    }
+  )
+}).addBatch({
+  'env save env_vars.json': shouldNodejitsuOk('The current app should save enviroment variables to the specified filename',
+    function setup() {
+      jitsu.prompt.override.confirm = 'yes';
+      nock('http://api.mockjitsu.com')
+        .get('/apps/tester/env_vars.json')
+          .reply(400, {
+              result: {
+                error: 'not_found'
+              }
+            }, { 'x-powered-by': 'Nodejitsu' })
+        .get('/apps/tester/jitsu')
+          .reply(200, {
+              app: {
+                name: 'application',
+                state: 'stopped',
+                env: { foo: 'bar', baz: 'buzz', test: 'truthy' },
+                subdomain:'application',
+                scripts: { start: './server.js' },
+                snapshots: [{ filename: 'FILENAME' }]
+              }
+            }, { 'x-powered-by': 'Nodejitsu' });
+    },
+    function assertion (err) {
+      assert.ok(!err && fs.existsSync('env_vars.json'));
+    }
+  )
+}).addBatch({
+  'env save barbaz env_vars.json': shouldNodejitsuOk('The specified app should save enviroment variables to the specified filename',
+    function setup() {
+      jitsu.prompt.override.confirm = 'yes';
+      nock('http://api.mockjitsu.com')
+        .get('/apps/tester/barbaz')
+          .reply(200, {
+              app: {
+                name: 'barbaz',
+                state: 'stopped',
+                env: { foo: 'bar', baz: 'buzz', test: 'truthy' },
+                subdomain:'barbaz',
+                scripts: { start: './server.js' },
+                snapshots: [{ filename: 'FILENAME' }]
+              }
+            }, { 'x-powered-by': 'Nodejitsu' });
+    },
+    function assertion (err) {
+      assert.ok(!err && fs.existsSync('env_vars.json'));
+    }
+  )
+}).addBatch({
+  'env load': shouldNodejitsuOk('The current app should load enviroment variables from env.json',
+    function setup() {
+      jitsu.prompt.override.confirm = 'yes';
+      fs.writeFileSync('env.json', JSON.stringify({ foo: 'bar', baz: 'buzz', test: 'truthy1' }, null, 2), 'utf8');
+      nock('http://api.mockjitsu.com')
+        .get('/apps/tester/jitsu')
+          .reply(200, {
+              app: {
+                name: 'application',
+                state: 'stopped',
+                env: { foo: 'bar', baz: 'buzz', test: 'truthy' },
+                subdomain:'application',
+                scripts: { start: './server.js' },
+                snapshots: [{ filename: 'FILENAME' }]
+              }
+            }, { 'x-powered-by': 'Nodejitsu' })
+        .put('/apps/tester/application', { env: { foo: 'bar', baz: 'buzz', test: 'truthy1' }  })
+          .reply(200, '', { 'x-powered-by': 'Nodejitsu' });
+    }
+  )
+}).addBatch({
+  'env load barbaz': shouldNodejitsuOk('The specified app should load enviroment variables from env.json',
+    function setup() {
+      jitsu.prompt.override.confirm = 'yes';
+      fs.writeFileSync('env.json', JSON.stringify({ foo: 'bar', baz: 'buzz', test: 'truthy1' }, null, 2), 'utf8');
+      nock('http://api.mockjitsu.com')
+        .get('/apps/tester/barbaz')
+          .reply(200, {
+              app: {
+                name: 'barbaz',
+                state: 'stopped',
+                env: { foo: 'bar', baz: 'buzz', test: 'truthy' },
+                subdomain:'barbaz',
+                scripts: { start: './server.js' },
+                snapshots: [{ filename: 'FILENAME' }]
+              }
+            }, { 'x-powered-by': 'Nodejitsu' })
+        .put('/apps/tester/barbaz', { env: { foo: 'bar', baz: 'buzz', test: 'truthy1' }  })
+          .reply(200, '', { 'x-powered-by': 'Nodejitsu' });
+    }
+  )
+}).addBatch({
+  'env load env_vars.json': shouldNodejitsuOk('The current app should load enviroment variables from the specified file',
+    function setup() {
+      jitsu.prompt.override.confirm = 'yes';
+      fs.writeFileSync('env_vars.json', JSON.stringify({ foo: 'bar', baz: 'buzz', test: 'truthy2' }, null, 2), 'utf8');
+      nock('http://api.mockjitsu.com')
+        .get('/apps/tester/env_vars.json')
+          .reply(400, {
+              result: {
+                error: 'not_found'
+              }
+            }, { 'x-powered-by': 'Nodejitsu' })
+        .get('/apps/tester/jitsu')
+          .reply(200, {
+              app: {
+                name: 'application',
+                state: 'stopped',
+                env: { foo: 'bar', baz: 'buzz', test: 'truthy1' },
+                subdomain:'application',
+                scripts: { start: './server.js' },
+                snapshots: [{ filename: 'FILENAME' }]
+              }
+            }, { 'x-powered-by': 'Nodejitsu' })
+        .put('/apps/tester/application', { env: { foo: 'bar', baz: 'buzz', test: 'truthy2' } })
+          .reply(200, '', { 'x-powered-by': 'Nodejitsu' });
+    }
+  )
+}).addBatch({
+  'env load barbaz env_vars.json': shouldNodejitsuOk('The specified app should load enviroment variables from the specified file',
+    function setup() {
+      jitsu.prompt.override.confirm = 'yes';
+      fs.writeFileSync('env_vars.json', JSON.stringify({ foo: 'bar', baz: 'buzz', test: 'truthy2' }, null, 2), 'utf8');
+      nock('http://api.mockjitsu.com')
+        .get('/apps/tester/barbaz')
+          .reply(200, {
+              app: {
+                name: 'barbaz',
+                state: 'stopped',
+                env: { foo: 'bar', baz: 'buzz', test: 'truthy1' },
+                subdomain:'barbaz',
+                scripts: { start: './server.js' },
+                snapshots: [{ filename: 'FILENAME' }]
+              }
+            }, { 'x-powered-by': 'Nodejitsu' })
+        .put('/apps/tester/barbaz', { env: { foo: 'bar', baz: 'buzz', test: 'truthy2' }  })
           .reply(200, '', { 'x-powered-by': 'Nodejitsu' });
     }
   )

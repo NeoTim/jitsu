@@ -1,6 +1,6 @@
 {
   "name": "jitsu",
-  "description": "Flawless command line deployment of your Node.js apps to the cloud",
+  "description": "Flawless command line deployment of Node.js apps to the cloud",
   "keywords": [
     "cli",
     "nodejitsu",
@@ -8,7 +8,7 @@
     "platform-as-a-service",
     "deployment"
   ],
-  "version": "0.8.7",
+  "version": "0.11.5",
   "author": "Nodejitsu Inc. <info@nodejitsu.com>",
   "maintainers": [
     "AvianFlu <avianflu@nodejitsu.com>",
@@ -21,21 +21,29 @@
   "preferGlobal": true,
   "dependencies": {
     "colors": "0.6.0-1",
+    "complete": "0.3.1",
     "dateformat": "1.0.2-1.2.3",
-    "flatiron": "0.1.16",
-    "flatiron-cli-config": "0.1.1",
-    "flatiron-cli-users": "0.1.1",
-    "npm": "1.1.16",
-    "nodejitsu-api": "0.2.6",
-    "pkginfo": "0.2.2",
-    "request": "2.9.100",
-    "require-analyzer": "0.4.0-3",
-    "semver": "1.0.13",
-    "complete": "0.3.x"
+    "flatiron": "0.3.0",
+    "flatiron-cli-config": "0.1.3",
+    "flatiron-cli-users": "0.1.3",
+    "fstream": "0.1.18",
+    "fstream-npm": "0.1.1",
+    "npm": "1.1.59",
+    "nodejitsu-api": "0.3.6",
+    "pkginfo": "0.2.3",
+    "request": "2.9.203",
+    "require-analyzer": "0.5.0",
+    "spawn-command": "0.0.2",
+    "semver": "1.0.14",
+    "tar": "0.1.13",
+    "wizard": "0.0.1",
+    "ladder": "0.0.0",
+    "progress": "0.1.0",
+    "opener": "1.3.x"
   },
   "devDependencies": {
     "nock": "0.8.x",
-    "vows": "0.6.x"
+    "vows": "0.7.x"
   },
   "bin": {
     "jitsu": "./bin/jitsu"

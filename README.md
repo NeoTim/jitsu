@@ -1,4 +1,4 @@
-# jitsu [![Build Status](https://secure.travis-ci.org/nodejitsu/jitsu.png)](http://travis-ci.org/nodejitsu/jitsu)
+# jitsu [![Build Status](https://secure.travis-ci.org/nodejitsu/jitsu.png?branch=master)](http://travis-ci.org/nodejitsu/jitsu)
 *Flawless command line deployment of Node.js apps to the cloud*
 
 <img src="https://github.com/nodejitsu/jitsu/raw/master/assets/jitsu.png"/>
@@ -8,11 +8,6 @@
 [Jitsu](https://github.com/nodejitsu/jitsu) is a [Command Line Tool (CLI)](http://en.wikipedia.org/wiki/Command-line_interface) for managing and deploying Node.js applications. It's open-source and easy to use. [We've](https://github.com/nodejitsu) designed `jitsu` to be suitable for command line beginners, but still be powerful and extensible enough for production usage.
 
 `jitsu` requires `npm`, the [node package manager](http://npmjs.org).
-
-## One-line npm install
-
-    [sudo] curl http://npmjs.org/install.sh | sh
-
 
 ## One-line jitsu install
 
@@ -82,13 +77,9 @@ If it's your first time using `jitsu`, you will be prompted to login with an exi
 
      jitsu install
 
-   *Deploys current path to [Nodejitsu](http://nodejitsu.com)*
+   *Deploys application in the current path to [Nodejitsu](http://nodejitsu.com)*
    
      jitsu deploy
-   
-   *Creates a new application on [Nodejitsu](http://nodejitsu.com)*
-   
-     jitsu create
    
    *Lists all applications for the current user*
    
@@ -126,6 +117,13 @@ All configuration data for your local `jitsu` install is located in the *.jitsuc
 
 If you need to have multiple configuration files, use --localconf or --jitsuconf options.
 
+Some Examples:
+
+    jitsu config set colors false   # disable colors
+    jitsu config set timeout 480000 # set request timeouts to 8 minutes
+    jitsu config set analyze false  # disable package analyzer
+    jitsu config set protocol https # Always use HTTP Secure
+
 ##jitsu options
 
     jitsu [commands] [options]
@@ -147,6 +145,44 @@ If you need to authenticate yourselves to the proxy, you can try this command.
     jitsu config set proxy http://user:pass@proxy.domain.com:3128/
 
 <a name="Libraries"></a>
+
+##jitsu hooks
+
+You can add pre-deploy and post-deploy hooks to jitsu for running build scripts, tagging releases or anything else you want to do. These are hooks that are executed before or after deploying your application on the local machine. They are stored in your package.json:
+
+    {
+      "name": "test-app",
+      "subdomain": "test-app",
+      "scripts": {
+        "predeploy": "echo This will be run before deploying the app",
+        "postdeploy": "echo This will be run after deploying the app",
+        "start": "app.js"
+      },
+      "engines": {
+        "node": "0.6.x"
+      },
+      "version": "0.0.0"
+    }
+
+Which results in the following output when deploying:
+
+    $ jitsu deploy
+    info:    Welcome to Nodejitsu nodejitsu
+    info:    It worked if it ends with Nodejitsu ok
+    info:    Executing command deploy
+    info:    Analyzing your application dependencies in app.js
+    info:    Checking app availability test-app
+    info:    Creating app test-app
+    This will be run before deploying the app
+    info:    Creating snapshot 0.0.0
+    info:    Updating app test-app
+    info:    Activating snapshot 0.0.0 for test-app
+    info:    Starting app test-app
+    info:    App test-app is now started
+    info:    http://test-app.jit.su on Port 80
+    This will be run after deploying the app
+    info:    Nodejitsu ok
+
 ## Libraries
 `jitsu` is built on a few well developed, well maintained Node.js libraries. The [Nodejitsu](http://nodejitsu.com) team and friends have been building and using these projects actively for the past two years. They are the most used Node libraries (see: [http://search.npmjs.org/](http://search.npmjs.org/)) and are actively maintained by Nodejitsu and other core members of the Node.js community. Each library serves a specific function and we highly suggest you check each one out individually if you wish to increase your knowledge of Node.js
 
